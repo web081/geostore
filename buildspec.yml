@@ -1,0 +1,17 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto8
+    commands:
+      - echo Installing dependencies...
+      - sudo apt-get update
+      - sudo apt-get install -y maven git
+  build:
+    commands:
+      - echo Building the GeoStore application...
+      - mvn clean install
+artifacts:
+  files:
+    - target/geostore.war
