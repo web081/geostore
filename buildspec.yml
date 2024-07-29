@@ -10,10 +10,11 @@ phases:
       - sudo apt-get install -y maven git
   build:
     commands:
-      - echo Building the GeoStore application...
+      - echo Building the Geo application...
       - mvn clean install
       - echo Listing files in target directory...
-      - ls -l target/
+      #- ls -l target/
 artifacts:
   files:
-    - target/geostore.war
+    - '**/*'
+  base-directory: src/web/app
