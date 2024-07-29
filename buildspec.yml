@@ -12,6 +12,8 @@ phases:
     commands:
       - echo Building the GeoStore application...
       - mvn clean install
+      - echo Listing files in target directory...
+      - ls -l target/
 artifacts:
   files:
     - target/geostore.war
