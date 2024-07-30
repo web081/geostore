@@ -17,7 +17,7 @@ hooks:
       runas: root
 
   BeforeInstall:
-    - location: scripts/bfore_install.sh
+    - location: scripts/before_install.sh
       timeout: 300
       runas: root
 
