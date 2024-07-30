@@ -17,7 +17,7 @@ phases:
       - echo Building the GeoStore application...
       - mvn clean install
       - echo Changing directory to src/web/app...
-      - cd ../web/app
+      - cd src/web/app
       - mvn jetty:run
   post_build:
     commands:
@@ -26,3 +26,7 @@ phases:
 artifacts:
   files:
     - src/web/app/target/*.war
+    - '**/*'
+  base-directory: src/web/app
+  
+    
