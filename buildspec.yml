@@ -8,6 +8,12 @@ phases:
       - echo Installing dependencies...
       - sudo apt-get update
       - sudo apt-get install -y maven git
+      - echo Setting script permissions...
+      - chmod +x scripts/stop-jetty.sh
+      - chmod +x scripts/backup-current-app.sh
+      - chmod +x scripts/set-permissions.sh
+      - chmod +x scripts/start-jetty.sh
+      - chmod +x scripts/validate-service.sh
   pre_build:
     commands:
       - echo Changing directory to src...
