@@ -16,8 +16,8 @@ phases:
     commands:
       - echo Building the GeoStore application...
       - mvn clean install
-      - chmod +x scripts/stop-jetty.sh
-      - chmod +x scripts/start-jetty.sh
+   #   - chmod +x scripts/stop-jetty.sh
+   #  - chmod +x scripts/start-jetty.sh
 
       - echo Changing directory to src/web/app...
       - cd web/app
