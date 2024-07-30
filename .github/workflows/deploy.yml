@@ -1,0 +1,57 @@
+name: Deploy Java Application to EC2
+
+on:
+  push:
+    branches:
+      - main # or the branch you use for deployments
+
+jobs:
+  build:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: 'corretto8' # specify your Java version java: corretto8
+
+    - name: Build with Maven
+      run: mvn clean package
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: app-artifact
+        path: target/*.jar # specify the path to your JAR file
+
+    - name: Deploy to EC2
+      env:
+        PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+        HOST: ${{ secrets.EC2_HOST }}
+        USER: ${{ secrets.EC2_USER }}
+      run: |
+        # Download the artifact
+        mkdir -p $HOME/deploy
+        aws s3 cp s3://geostore-bucket/app-artifact.jar $HOME/deploy/app-artifact.jar
+
+        # SSH into the EC2 instance and perform deployment
+        ssh -o StrictHostKeyChecking=no -i "$PRIVATE_KEY" $USER@$HOST << 'EOF'
+          # Stop Jetty server
+          sudo systemctl stop jetty
+
+          # Backup current application
+          sudo cp /opt/jetty/webapps/ROOT.war /opt/jetty/webapps/ROOT.war.bak
+
+          # Deploy the new application
+          sudo cp ~/deploy/app-artifact.jar /opt/jetty/webapps/ROOT.war
+
+          # Restart Jetty server
+          sudo systemctl start jetty
+
+          # Validate service (optional)
+          curl -f http://localhost:8080/geostore/rest || exit 1
+        EOF
