@@ -40,24 +40,39 @@ jobs:
         HOST: ${{ secrets.EC2_HOST }}
         USER: ${{ secrets.EC2_USER }}
       run: |
-        # Download the artifact
+        # Define the path to the private key file
+        PRIVATE_KEY_FILE="$HOME/.ssh/id_rsa"
+          
+        # Create the SSH key file and set permissions
+        mkdir -p "$HOME/.ssh"
+        echo "$PRIVATE_KEY" > "$PRIVATE_KEY_FILE"
+        chmod 600 "$PRIVATE_KEY_FILE"
+          
+        # Create the deployment directory
         mkdir -p $HOME/deploy
+          
+        # Download the artifact from S3
         aws s3 cp s3://geostore-bucket/app-artifact.jar $HOME/deploy/app-artifact.jar
-
+          
         # SSH into the EC2 instance and perform deployment
-        ssh -1 "$PRIVATE_KEY" StrictHostKeyChecking=no $USER@$HOST << 'EOF'
-          # Stop Jetty server
-          sudo systemctl stop jetty
-
-          # Backup current application
-          sudo cp /opt/jetty-base/webapps/ROOT.war /opt/jetty-base/webapps/ROOT.war.bak
-
-          # Deploy the new application
-          sudo cp ~/deploy/app-artifact.jar /opt/jetty-base/webapps/ROOT.war
-
-          # Restart Jetty server
-          sudo systemctl start jetty
-
-          # Validate service (optional)
-          curl -f http://localhost:8080/geostore/rest || exit 1
+        ssh -i "$PRIVATE_KEY_FILE" -o StrictHostKeyChecking=no $USER@$HOST << EOF
+        echo "Starting deployment..."
+            
+        # Stop Jetty server
+        sudo systemctl stop jetty || { echo 'Failed to stop Jetty'; exit 1; }
+            
+        # Backup current application
+        sudo cp /opt/jetty-base/webapps/ROOT.war /opt/jetty-base/webapps/ROOT.war.bak || { echo 'Failed to backup current application'; exit 1; }
+            
+        # Deploy the new application
+        sudo cp ~/deploy/app-artifact.jar /opt/jetty-base/webapps/ROOT.war || { echo 'Failed to deploy new application'; exit 1; }
+            
+        # Restart Jetty server
+        sudo systemctl start jetty || { echo 'Failed to start Jetty'; exit 1; }
+            
+        # Validate service (optional)
+        curl -f http://localhost:8080/geostore/rest || { echo 'Service validation failed'; exit 1; }
+            
+        echo "Deployment complete."
         EOF
+      
