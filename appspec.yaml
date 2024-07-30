@@ -5,10 +5,11 @@ files:
   - source: src/web/app/app.war
     destination: /opt/jetty-base/webapps/
 permissions:
-  - object: /opt/jetty-base/webapps/app.war
-    owner: root
-    group: root
-    mode: "644"
+  - object: /
+    pattern: "**"
+    owner: ubuntu
+    group: ubuntu
+    
 hooks:
   ApplicationStop:
     - location: scripts/stop-jetty.sh
@@ -16,7 +17,7 @@ hooks:
       runas: root
 
   BeforeInstall:
-    - location: scripts/backup-current-app.sh
+    - location: scripts/bfore_install.sh
       timeout: 300
       runas: root
 
