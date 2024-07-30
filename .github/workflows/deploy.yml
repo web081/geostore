@@ -14,13 +14,20 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up JDK
+    - name: Set up Java
       uses: actions/setup-java@v3
       with:
-        java-version: 'corretto8' # specify your Java version java: corretto8
-
+        java-version: corretto8
+        java-package: jdk
+        check-latest: false
+        server-id: github
+        server-username: ${{ secrets.USERNAME_ACTOR }}
+        server-password: ${{ secrets.ACCESS_TOKEN }}
+        overwrite-settings: true
+        job-status: success
+        token: ${{ secrets.ACCESS_TOKEN }}
     - name: Build with Maven
-      run: mvn clean package
+      run: mvn clean install
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
