@@ -17,15 +17,14 @@ jobs:
     - name: Set up Java
       uses: actions/setup-java@v3
       with:
-        java-version: corretto8
-        java-package: jdk
-        check-latest: false
-        server-id: github
-        server-username: ${{ secrets.USERNAME_ACTOR }}
-        server-password: ${{ secrets.ACCESS_TOKEN }}
-        overwrite-settings: true
-        job-status: success
-        token: ${{ secrets.ACCESS_TOKEN }}
+        java-version: '8'             # Specify the version here
+        distribution: 'corretto'      # Specify the distribution here
+        java-package: 'jdk'           # Use 'jdk' for the full JDK or 'jre' for the JRE
+        check-latest: false           # Set to true to get the latest version
+        overwrite-settings: true      # Whether to overwrite settings if Java is already installed
+        job-status: success           # Status of the job (success or failure)
+        token: ${{ secrets.ACCESS_TOKEN }} 
+        
     - name: Build with Maven
       run: mvn clean install
 
