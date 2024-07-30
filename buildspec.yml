@@ -8,13 +8,21 @@ phases:
       - echo Installing dependencies...
       - sudo apt-get update
       - sudo apt-get install -y maven git
+  pre_build:
+    commands:
+      - echo Changing directory to src...
+      - cd src
   build:
     commands:
-      - echo Building the Geo application...
+      - echo Building the GeoStore application...
       - mvn clean install
-      - echo Listing files in target directory...
-      #- ls -l target/
+      - echo Changing directory to src/web/app...
+      - cd ../web/app
+      - mvn jetty:run
+  post_build:
+    commands:
+      - echo Build completed successfully!
+
 artifacts:
   files:
-    - '**/*'
-  base-directory: src/web/app
+    - src/web/app/target/*.war

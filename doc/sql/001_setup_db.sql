@@ -21,3 +21,7 @@ GRANT SELECT ON public.spatial_ref_sys to geostore_test;
 GRANT SELECT,INSERT,DELETE ON public.geometry_columns to geostore_test;
 
 ALTER USER geostore_test SET search_path TO geostore_test, public;
+
+
+
+
