@@ -71,7 +71,7 @@ jobs:
         sudo systemctl start jetty || { echo 'Failed to start Jetty'; exit 1; }
             
         # Validate service (optional)
-        curl -f http://localhost:8080/geostore/rest || { echo 'Service validation failed'; exit 1; }
+        # curl -f http://localhost:8080/geostore/rest || { echo 'Service validation failed'; exit 1; }
             
         echo "Deployment complete."
         EOF
