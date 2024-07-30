@@ -45,7 +45,7 @@ jobs:
         aws s3 cp s3://geostore-bucket/app-artifact.jar $HOME/deploy/app-artifact.jar
 
         # SSH into the EC2 instance and perform deployment
-        ssh -o StrictHostKeyChecking=no -i "$PRIVATE_KEY" $USER@$HOST << 'EOF'
+        ssh -1 "$PRIVATE_KEY" StrictHostKeyChecking=no $USER@$HOST << 'EOF'
           # Stop Jetty server
           sudo systemctl stop jetty
 
