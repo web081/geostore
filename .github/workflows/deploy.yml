@@ -24,7 +24,7 @@ jobs:
         overwrite-settings: true      # Whether to overwrite settings if Java is already installed
         job-status: success           # Status of the job (success or failure)
         token: ${{ secrets.ACCESS_TOKEN }} 
-        
+
     - name: Build with Maven
       run: mvn clean install
 
@@ -50,10 +50,10 @@ jobs:
           sudo systemctl stop jetty
 
           # Backup current application
-          sudo cp /opt/jetty/webapps/ROOT.war /opt/jetty/webapps/ROOT.war.bak
+          sudo cp /opt/jetty-base/webapps/ROOT.war /opt/jetty-base/webapps/ROOT.war.bak
 
           # Deploy the new application
-          sudo cp ~/deploy/app-artifact.jar /opt/jetty/webapps/ROOT.war
+          sudo cp ~/deploy/app-artifact.jar /opt/jetty-base/webapps/ROOT.war
 
           # Restart Jetty server
           sudo systemctl start jetty
