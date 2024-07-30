@@ -28,7 +28,7 @@ phases:
 
 artifacts:
   files:
-    - src/web/app/target/*.war
+    - src/web/app/target/app.war
     - '**/*'
   base-directory: src/web/app
   
