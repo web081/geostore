@@ -9,11 +9,11 @@ phases:
       - sudo apt-get update
       - sudo apt-get install -y maven git
       - echo Setting script permissions...
-      - chmod +x scripts/stop-jetty.sh
+      - chmod +x scripts/stop_jetty.sh
       - chmod +x scripts/before_install.sh
-      - chmod +x scripts/set-permissions.sh
-      - chmod +x scripts/start-jetty.sh
-      - chmod +x scripts/validate-service.sh
+      - chmod +x scripts/set_permissions.sh
+      - chmod +x scripts/start_jetty.sh
+      - chmod +x scripts/validate_service.sh
   pre_build:
     commands:
       - echo Changing directory to src...
