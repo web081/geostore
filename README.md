@@ -1,5 +1,5 @@
-### GeoStore Deployment
-- * This project provides a deployment configuration for the GeoStore application on an AWS EC2 instance using GitHub, AWS CodeBuild, and AWS CodeDeploy. The deployment also involves configuring Apache as a reverse proxy for the GeoStore application.
+### GeoStore Application API Deployment into AWS Services
+* This project provides a deployment configuration for the GeoStore application on an AWS EC2 instance using GitHub, AWS CodeBuild, and AWS CodeDeploy. The deployment also involves configuring Apache as a reverse proxy for the GeoStore application.
 
 ##### Prerequisites
 * Before starting, ensure you have the following prerequisites:
