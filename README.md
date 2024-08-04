@@ -2,11 +2,11 @@
 - * This project provides a deployment configuration for the GeoStore application on an AWS EC2 instance using GitHub, AWS CodeBuild, and AWS CodeDeploy. The deployment also involves configuring Apache as a reverse proxy for the GeoStore application.
 
 ##### Prerequisites
-- * Before starting, ensure you have the following prerequisites:
+* Before starting, ensure you have the following prerequisites:
 
 - An AWS account with permissions to use EC2, CodeBuild, and CodeDeploy.
-An EC2 instance running Ubuntu.
-Apache and PostgreSQL installed and running on the EC2 instance.
+- An EC2 instance running Ubuntu.
+- Apache and PostgreSQL installed and running on the EC2 instance.
 Git installed locally.
 
 Setup
@@ -16,11 +16,11 @@ Setup
 git clone git@github.com:geosolutions-it/geostore.git geostore
 cd geostore
 ```
-2. Configure CodeBuild and CodeDeploy
+1. Configure CodeBuild and CodeDeploy
 - Ensure you have AWS CodeBuild and CodeDeploy set up with the necessary IAM roles and policies.
 
-3. ##### Deployment Configuration
-- * buildspec.yml
+1. ##### Deployment Configuration
+   `buildspec.yml`
 - This file defines the build steps and specifies the artifact to be used by CodeDeploy.
 
 ``` yaml
@@ -45,7 +45,7 @@ artifacts:
     - target/geostore.war
 ```
 `appspec.yml`
-- * This file specifies the deployment steps for CodeDeploy.
+* This file specifies the deployment steps for CodeDeploy.
 
 ```yaml
 version: 0.0
@@ -113,13 +113,13 @@ git add .
 git commit -m "Update deployment scripts and appspec.yml"
 git push origin main
 ```
-5. ##### Deploy
-- Use AWS CodeDeploy to deploy the application to your EC2 instance. Ensure that the security group of your EC2 instance allows traffic on the necessary ports.
+6. ##### Deploy
+- Use AWS CodeDeploy to deploy the application to your EC2 instance. - Ensure that the security group of your EC2 instance allows traffic on the necessary ports.
 
 ##### Accessing the Application
 - Once deployed, the GeoStore application will be accessible at http://your-ec2-instance-ip-or-domain/geostore/rest.
 
 #### Acknowledgments
-GeoStore - The GeoStore application repository.
-AWS CodeBuild - For building the application.
-AWS CodeDeploy - For deploying the application.
+- GeoStore - The GeoStore application repository.
+- AWS CodeBuild - For building the application.
+- AWS CodeDeploy - For deploying the application.
