@@ -1,72 +1,125 @@
-![Build Status](https://github.com/geosolutions-it/geostore/actions/workflows/CI.yml/badge.svg)
-[![Coverage Status](https://coveralls.io/repos/github/geosolutions-it/geostore/badge.svg?branch=master)](https://coveralls.io/github/geosolutions-it/geostore?branch=master)
+### GeoStore Deployment
+- * This project provides a deployment configuration for the GeoStore application on an AWS EC2 instance using GitHub, AWS CodeBuild, and AWS CodeDeploy. The deployment also involves configuring Apache as a reverse proxy for the GeoStore application.
 
-[GeoStore](https://github.com/geosolutions-it/geostore) is an open source Java enterprise application for storing, searching and retrieving data on the fly.
+##### Prerequisites
+- * Before starting, ensure you have the following prerequisites:
 
-GeoStore performs authentication internally (auth framework shall be pluggable), and internal authorization rules grant permissions on single Resources or whole Categories.
+- An AWS account with permissions to use EC2, CodeBuild, and CodeDeploy.
+An EC2 instance running Ubuntu.
+Apache and PostgreSQL installed and running on the EC2 instance.
+Git installed locally.
 
-A comprehensive [REST API](https://github.com/geosolutions-it/geostore/wiki/REST-API) allows an easy handling of internal resources, so that client side applications can easily query the store, while remote server side application can integrate with GeoStore using the GeoStoreClient, an utility java class that hides the REST communications complexities.
+Setup
+1. Clone the Repository
+- Clone the GeoStore repository from GitHub:
+```
+git clone git@github.com:geosolutions-it/geostore.git geostore
+cd geostore
+```
+2. Configure CodeBuild and CodeDeploy
+- Ensure you have AWS CodeBuild and CodeDeploy set up with the necessary IAM roles and policies.
 
-# Documentation
+3. ##### Deployment Configuration
+- * buildspec.yml
+- This file defines the build steps and specifies the artifact to be used by CodeDeploy.
 
-For more information check the [GeoStore wiki](https://github.com/geosolutions-it/geostore/wiki/Documentation-index) .
+``` yaml
+version: 0.2
 
-## Release process 
+phases:
+  install:
+    runtime-versions:
+      java: corretto8
+    commands:
+      - echo Installing dependencies...
+      - sudo apt-get update
+      - sudo apt-get install -y maven git
+  build:
+    commands:
+      - echo Building the GeoStore application...
+      - mvn clean install
+      - echo Listing files in target directory...
+      - ls -l target/
+artifacts:
+  files:
+    - target/geostore.war
+```
+`appspec.yml`
+- * This file specifies the deployment steps for CodeDeploy.
 
-The release procedure is essentially made of 2 steps: 
-- **Cut major branch**
-- Effective **Release**
+```yaml
+version: 0.0
+os: linux
+files:
+  - source: target/geostore.war
+    destination: /var/www/html/geostore.war
+hooks:
+  BeforeInstall:
+    - location: scripts/install_dependencies.sh
+      timeout: 300
+  AfterInstall:
+    - location: scripts/configure_apache.sh
+      timeout: 300
+  ApplicationStart:
+    - location: scripts/start_server.sh
+      timeout: 300
+```
+##### Deployment Scripts
+- Create the following scripts in the scripts directory:
+ `scripts/install_dependencies.sh`
+```
+#!/bin/bash
+echo "Installing dependencies..."
+sudo apt-get update
+sudo apt-get install -y maven git
+``` 
+`scripts/configure_apache.sh`
 
-The project is developed on the main (master) branch, containing the latest `-SNAPSHOT` version of the modules of the project. When a major release starts the validation process, a new *release branch* is created (see [Cut-Release](#cut-Release-branch), named `<major-version>.xx`. 
-After this on the main (master) branch the `-SNAPSHOT` version of the modules is increased and from this point the main branch will include commits for the next major version of the project.
+```
+#!/bin/bash
+echo "Configuring Apache..."
 
-When the validation process is completed and all the fixes have been applied to the *release branch*, the version of the java modules is fixed, commit is tagged with the number of the release and the Github *release* is published. See [Release](#release).
+# Enable necessary Apache modules
+sudo a2enmod proxy
+sudo a2enmod proxy_http
+sudo systemctl restart apache2
 
-After this on the *release brach* the `-SNAPSHOT` version of the modules is restored so that it is possible to continue applying fixes and minor improvements, creating more releases on it with the same procedure, until end of maintainance.
+# Create a new Apache site configuration for GeoStore
+cat <<EOL | sudo tee /etc/apache2/sites-available/geostore.conf
+<VirtualHost *:80>
+    ServerName geostore.example.com
 
-Here the steps to follow for executing the 2 procedures :
+    ProxyPreserveHost On
+    ProxyPass / http://localhost:8080/
+    ProxyPassReverse / http://localhost:8080/
 
-### Cut-Release branch
+    ErrorLog \${APACHE_LOG_DIR}/geostore_error.log
+    CustomLog \${APACHE_LOG_DIR}/geostore_access.log combined
+</VirtualHost>
+EOL
 
-1. Run the workflow [Cut Release branch](../../actions/workflows/cut-major-branch.yml) passing 
-  - Branch Master
-  - current version  
-  - next version 
-  - main branch (keep `master`)
-  - other options (can be left as default)
-2. Merge the PR that is generated, if not merged automatically
+sudo a2ensite geostore.conf
+sudo systemctl reload apache2
+```
+4. ##### Make Scripts Executable
+- Ensure the deployment scripts are executable:
+```
+chmod +x scripts/install_dependencies.sh scripts/configure_apache.sh scripts/start_server.sh
+```
+5. ##### Commit and Push Changes
+- Commit your changes and push to the repository:
+```
+git add .
+git commit -m "Update deployment scripts and appspec.yml"
+git push origin main
+```
+5. ##### Deploy
+- Use AWS CodeDeploy to deploy the application to your EC2 instance. Ensure that the security group of your EC2 instance allows traffic on the necessary ports.
 
-### Release
+##### Accessing the Application
+- Once deployed, the GeoStore application will be accessible at http://your-ec2-instance-ip-or-domain/geostore/rest.
 
-1. Run the workflow [Release](../../actions/workflows/release.yml) with the folling parameters: 
- - select the branch to use (e.g. `2.1.x`)
- - version to release (e.g. `2.1.0`)
- - base version (e.g. `2.1`)
-
-The release will be automatically published on GitHub. Packages will be automatically deployed on maven repository.
-
-
-## Relevant Workflows
-
-- [CI](../../actions/workflows/CI.yml): Automatically does tests for pull request or commits on `master`. For commits on the main repo (e.g. when PR are merged on `master` or stable branches, the workflow publish also the artifacts on [GeoSolutions Maven Repository](https://maven.geo-solutions.it)
-- **[Cut release branch](../../actions/workflows/cut-major-branch.yml)**: (`cut-major-branch.yml`): Manually triggered workflow that allows to create a stable branch named `<current-version>.x` and create a pull request for updating `master` branch `-SNAPSHOT` version with the new data. 
-- **[Release](../../actions/workflows/release.yml)**: (`cut-major-branch.yml`): Manually triggered workflow to apply to the stable branch that fixes the maven modules versions, tags the commit, build and deploy artifacts, restores snapshot versions and publish a Github release on the tagged commit.
-
-# License
-
-**GeoStore** core modules are free and Open Source software, released under the [GPL v3](http://www.gnu.org/licenses/gpl.html) license.
-
-# Professional Support
-
-GeoStore is being developed by [GeoSolutions](http://www.geo-solutions.it/) hence you can talk to us for professional support. Anyway the project is a real Open Source project hence you can contribute to it (see section below).
-
-# Contributing
-
-We welcome contributions in any form:
-
-- pull requests for new features
-- pull requests for bug fixes
-- pull requests for documentation
-- funding for any combination of the above
-
-
+#### Acknowledgments
+GeoStore - The GeoStore application repository.
+AWS CodeBuild - For building the application.
+AWS CodeDeploy - For deploying the application.
